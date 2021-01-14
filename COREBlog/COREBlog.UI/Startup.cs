@@ -1,6 +1,7 @@
 ﻿using COREBlog.CORE.Service;
 using COREBlog.MODEL.Context;
 using COREBlog.SERVICE.Base;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -42,6 +43,11 @@ namespace COREBlog.UI
 
             services.AddScoped(typeof(ICoreService<>), typeof(BaseService<>));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,12 +64,18 @@ namespace COREBlog.UI
                 app.UseHsts();
             }
 
+            app.UseAuthentication(); // Ekledik.
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
             app.UseMvc(routes =>
             {
+                // Ekledik.
+                routes.MapRoute(
+                    name: "areas",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

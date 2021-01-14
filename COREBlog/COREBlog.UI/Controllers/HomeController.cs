@@ -36,22 +36,31 @@ namespace COREBlog.UI.Controllers
         }
         public IActionResult Index()
         {
+            ViewBag.Categories = cs.GetActive();
             return View(ps.GetActive());
         }
 
         public IActionResult PostByCategoryID(Guid id)
         {
+            ViewBag.Categories = cs.GetActive();
             return View(ps.GetDefault(x => x.CategoryID == id).ToList());
         }
 
+        // localhost:PortNo/Home/Post/0e61a06e-6b1f-453e-8ee2-a0b4d6b99037 gibi bir URL'e gidecek.
         public IActionResult Post(Guid id)
         {
             Post post = ps.GetByID(id);
             post.ViewCount++;
             ps.Update(post);
 
-            return View(Tuple.Create<Post, User, List<Category>, List<Comment>>(post, us.GetByID(post.UserID), cs.GetActive(), cms.GetDefault(x => x.Post.ID == id)));
+            return View(Tuple.Create<Post, User, Category, List<Category>, List<Comment>>(post, us.GetByID(post.UserID), cs.GetByID(post.CategoryID), cs.GetActive(), cms.GetDefault(x => x.Post.ID == id)));
         }
+
+        //public PartialViewResult _CategoriesPartial()
+        //{
+        //    ViewBag.Categories = cs.GetActive();
+        //    return PartialView();
+        //}
 
     }
 }
